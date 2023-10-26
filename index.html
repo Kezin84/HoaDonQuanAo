@@ -257,7 +257,7 @@
         <button id="fill-info">Cập nhật giá theo mã </i></button>
         <button id="fill-info2">Cập nhật giá theo mã file Excel</button><br>
         <div class="form-group">
-            <label for="productName">Tên hàng hoá:</label>
+            <label for="productName">Tên nhà phân phối:</label>
             <input type="text" id="productName" list="productList" placeholder="Chọn hoặc nhập tên" required>
                 <datalist style="font-weight: bold;cursor: pointer;" id="productList">
                 <option value="Bánh mì nướng muối ớt">
@@ -324,22 +324,8 @@
 </div>
 
     <div id="doiTien">
-        <h1 style="text-align: center;">ĐỔI TIỀN</h1>
-        <div class="form-group">
-            <label for="unit">Nhập tiền Peso:</label>
-            <input type="text" id="peso"placeholder="Nhập Peso" required>
-        </div>
-        <div class="form-group">
-            <label for="unit">Nhập tiền Việt Nam:</label>
-            <input type="text" id="vnd" placeholder="Nhập VND" required>
-        </div>
-        <div class="form-group">
-            <label for="unit">Tỷ giá:</label>
-            <input type="text" id="Tigia"placeholder="Nhập tỉ giá" required>
-        </div>
-        <button id='btnvnd' onClick="pesoQuaVietnam()"> Đổi sang Việt Nam đồng <i class="fa-solid fa-arrow-right-arrow-left"></i></button>
-        <button id='btnps' onClick="vietNamsangPeso()"> Đổi sang Peso <i class="fa-solid fa-arrow-right-arrow-left"></i></button>
-        <h2 id="result">KẾT QUẢ : </h2>
+        <h1 style="text-align: center;">TẠO MÃ</h1>
+        <button onclick="generateProductCode()">Tạo mã sản phẩm</button>
     </div>
     <div id="Xuathoadon">
     <button class="btn" id="xuat"type="button" onclick="exportInvoice()">XUẤT HOÁ DƠN <i class="fa-solid fa-image"></i></i> </button>
@@ -348,6 +334,7 @@
     <p style="color:aliceblue">CTK: LE THI PHUONG THUY</p>
     <p style="color:aliceblue">NH1: MB-8500100044007</p>
     <p style="color:aliceblue">NH2: MSB-32001010923656</p>
+    
     </div>
     </div>
 </div>
@@ -594,6 +581,7 @@ fillInfoButton.addEventListener("click", function() {
     products.push(product);
     calculateTotal()
     renderTable();
+    generateProductCode()
     clearForm();
 }
 
@@ -661,6 +649,7 @@ function calculateTotal() {
 
         function editProduct(index) {
             const product = products[index];
+            document.getElementById('productID').value = product.id;
             document.getElementById('productName').value = product.name;
             document.getElementById('unit').value = product.unit;
             document.getElementById('quantity').value = product.quantity.toLocaleString();
@@ -816,57 +805,51 @@ const currentTime = `${hours}:${minutes} - ${day}/${month}/${year}`;
        document.getElementById('result').innerHTML='Kết quả: '+ketqua.toLocaleString()+' PESO'
     }
     function exportToExcel() {
-        let info=[
-            prompt("Nhập tên khách hàng"),
-            prompt("Nhập địa chỉ khách hàng"),
-            prompt("Nhập số điện thoại khách hàng"),
-    ]
-
-    // Tạo một đối tượng Excel
+    // Create a new workbook
     const wb = XLSX.utils.book_new();
-    // Tạo một danh sách chứa dữ liệu hoá đơn
-    const invoiceData = [];
 
-    // Thêm tiêu đề cho danh sách dữ liệu
-    invoiceData.push([
-        info[0],
-        info[1],
-        info[2],
-        'Tên hàng hoá',
-        'DVT',
-        'Số lượng',
-        'Đơn giá',
-        'Thành tiền',
-        'Chiết khấu'
-    ]);
+    // Create an array to store the table data
+    const tableData = [];
+        const customerName=prompt("Nhạp ten khách hang");
+    // Add column headers as the first row (A1 cell)
+    tableData.push([customerName,'Mã Hàng Hoá', 'Tên Hàng Hoá', 'Giá Vốn', 'Giá Bán', 'Số Lượng', 'Thành Tiền', 'Lợi Nhuận']);
 
-    // Thêm dữ liệu từ bảng hoá đơn vào danh sách dữ liệu
-    products.forEach((product) => {
-        invoiceData.push([
-            product.name,
-            product.unit,
-            product.quantity,
-            product.unitPrice,
-            product.totalPrice,
-            product.discount
-        ]);
-    });
+    // Get the table element by its ID
+    const table = document.getElementById('productTableBody');
 
-    // Tạo một sheet trong file Excel
-    const ws = XLSX.utils.aoa_to_sheet(invoiceData);
+    // Iterate over the table rows (excluding the header row)
+    for (let i = 1; i < table.rows.length; i++) {
+        const row = table.rows[i];
+        const rowData = [];
 
-    // Đặt tên cho sheet
+        // Adjust the column indices as per your requirements
+        // Column B is 1, C is 2, D is 3, E is 4, F is 5, J is 9, and I is 8
+        rowData.push(row.cells[1].textContent); // Mã Hàng Hoá
+        rowData.push(row.cells[2].textContent); // Tên Hàng Hoá
+        rowData.push(row.cells[3].textContent); // Giá Vốn
+        rowData.push(row.cells[4].textContent); // Giá Bán
+        rowData.push(row.cells[5].textContent); // Số Lượng
+        rowData.push(row.cells[9].textContent); // Thành Tiền
+        rowData.push(row.cells[8].textContent); // Lợi Nhuận
+
+        // Add the row data to the tableData array
+        tableData.push(rowData);
+    }
+
+    // Create a worksheet with the tableData
+    const ws = XLSX.utils.aoa_to_sheet(tableData);
+
+    // Set column widths for better visualization (adjust these values as needed)
+    ws['!cols'] = [{ wch: 20 }, { wch: 20 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 10 }, { wch: 10 }];
+
+    // Add the worksheet to the workbook
     XLSX.utils.book_append_sheet(wb, ws, 'Hoá đơn');
 
-    // Chuyển đổi file Excel thành một chuỗi dữ liệu
-    const excelData = XLSX.write(wb, { bookType: 'xlsx', type: 'base64' });
-
-    // Chuyển đổi chuỗi dữ liệu thành một blob
-    const blob = new Blob([s2ab(atob(excelData))], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-
-    // Sử dụng thư viện FileSaver.js để tạo và tải file
-    saveAs(blob, 'hoa-don.xlsx');
+    // Generate the Excel file and save it
+    XLSX.writeFile(wb, 'hoa-don.xlsx');
 }
+
+
 
 // Hàm chuyển đổi chuỗi thành mảng dữ liệu
 function s2ab(s) {
@@ -899,6 +882,35 @@ copyElements.forEach((element) => {
         alert('ĐÃ SAO CHÉP THÔNG TIN');
     });
 });
+
+// TẠO MÃ HÀNG
+function generateProductCode() {
+    // Lấy giá trị của tên hàng hoá và giá bán
+    const productName = document.getElementById('productName').value;
+    const unitPriceInput = document.getElementById('unitPrice').value;
+
+    // Kiểm tra xem tên hàng hoá và giá bán có giá trị hợp lệ không
+    if (productName.trim() === '' || !unitPriceInput) {
+        alert('Vui lòng nhập tên hàng hoá và giá bán hợp lệ.');
+        return;
+    }
+
+    // Lấy 2 chữ cái đầu tiên từ mỗi từ trong tên hàng hoá (viết tắt)
+    const initials = productName.split(' ').map(word => word.charAt(0)).join('').toUpperCase();
+
+    // Loại bỏ dấu nghìn và định dạng giá bán thành số nguyên
+    const unitPrice = parseInt(unitPriceInput.replace(/\D/g, ''));
+
+    // Loại bỏ 3 số 0 cuối cùng từ giá bán
+    const unitPriceWithoutZeros = Math.floor(unitPrice / 1000);
+
+    // Tạo mã sản phẩm bằng cách kết hợp viết tắt của tên hàng hoá và giá bán đã chỉnh sửa
+    const productCode = `${initials}-${unitPriceWithoutZeros}`;
+    document.getElementById('productID').value = productCode;
+    // Hiển thị mã sản phẩm
+    alert(`Mã sản phẩm: ${productCode}`);
+    
+}
 
     </script>
 </body>
