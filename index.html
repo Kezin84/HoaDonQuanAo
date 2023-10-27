@@ -252,7 +252,8 @@
     <form id="productForm">
         <div class="form-group">
             <label for="productID">Mã Hàng:</label>
-            <input type="text" id="productID" placeholder="Nhập mã hàng"required>
+            <input type="text" id="productID" placeholder="Nhập mã hàng">
+            <button style="border-radius: 20px; margin-left: 5px;cursor: pointer;color: #2B5278;" onclick="generateProductCode()">Tạo mã sản phẩm <i class="fa-solid fa-circle-plus fa-lg"></i></button>
         </div>
         <button id="fill-info">Cập nhật giá theo mã </i></button>
         <button id="fill-info2">Cập nhật giá theo mã file Excel</button><br>
@@ -323,7 +324,7 @@
     <button class="btn" id="them" type="button" onclick="addProduct()"><i class="fa-solid fa-plus"></i> Thêm hàng hoá</button>
 </div>
 
-    <div id="doiTien">
+    <div style="display: none;" id="doiTien">
         <h1 style="text-align: center;">TẠO MÃ</h1>
         <button onclick="generateProductCode()">Tạo mã sản phẩm</button>
     </div>
@@ -581,7 +582,6 @@ fillInfoButton.addEventListener("click", function() {
     products.push(product);
     calculateTotal()
     renderTable();
-    generateProductCode()
     clearForm();
 }
 
@@ -909,7 +909,6 @@ function generateProductCode() {
     document.getElementById('productID').value = productCode;
     // Hiển thị mã sản phẩm
     alert(`Mã sản phẩm: ${productCode}`);
-    
 }
 
     </script>
